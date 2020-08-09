@@ -59,6 +59,7 @@ void SendMessagesEntry::on_addressBookButton_clicked()
         QString address = dlg.getReturnValue();
         QString pubkey;
         QString smsgInfo = address + ":";
+        QMessageBox::warning(this, tr("debug"),address);
 
         if(model->getAddressOrPubkey(address, pubkey))
         {
@@ -135,6 +136,16 @@ bool SendMessagesEntry::validate()
     QStringList smsgInfo = ui->sendTo->text().split(":");
 
     if(smsgInfo.length() != 2 || !model->getWalletModel()->validateAddress(smsgInfo[0]) || smsgInfo[1] == "")
+    {
+        ui->sendTo->setValid(false);
+
+        retval = false;
+    }
+    // Removed the below snippet from the "else if" check, caused ":" to be an unnacceptable
+    // character and throw an address invalid when in fact it's valid as it verifies it still
+    // with the remaining active check below.
+    // REMOVED:    !ui->sendTo->hasAcceptableInput() ||
+    else if((!model->getWalletModel()->validateAddress(smsgInfo[0])))
     {
         ui->sendTo->setValid(false);
 
